@@ -1,0 +1,10 @@
+{
+  "name": "Gallery Wall",
+  "short_name": "Gallery Wall",
+  "description": "Plan a gallery wall: drag, resize and style real-world frames, then get nail positions.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#16161a",
+  "theme_color": "#16161a",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
