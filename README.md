@@ -2,7 +2,11 @@
 
 Plan a gallery ("chaos") wall before you put a single nail in. Drag, drop and resize real-world frame sizes on an infinite canvas that feels like Obsidian Canvas, style frames and the wall, drop in your own photos, then export nail positions and 1:1 paper templates.
 
-Everything is stored locally in your browser (IndexedDB). Nothing is uploaded anywhere.
+**Live app:** https://alexkasantsidis.github.io/gallery-wall/
+
+Everything is stored locally in your browser (IndexedDB). Nothing is uploaded anywhere, so each visitor's walls stay on their own device. Use **Save .wall file** to move a wall between devices or share it.
+
+Every push to `main` rebuilds and redeploys the site through GitHub Actions ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)).
 
 ## Run it
 
