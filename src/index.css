@@ -633,6 +633,13 @@ button {
   border-radius: calc(2px * var(--inv));
 }
 
+.gw-rulers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .gw-eyeline {
   position: absolute;
   left: 0;

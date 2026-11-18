@@ -22,9 +22,10 @@ import {
   Check,
   Loader2,
   CloudOff,
+  RulerDimensionLine,
 } from 'lucide-react';
 import { useDoc, commit, getDoc } from '../store/docStore';
-import { useUi, ui, toast } from '../store/uiStore';
+import { useUi, ui, toast, setRulers } from '../store/uiStore';
 import { useSaveState, loadWall } from '../store/persistence';
 import { arrangeSelection } from '../store/actions';
 import { IconButton, Popover, Segmented, Tip } from '../components/ui';
@@ -76,6 +77,7 @@ export function Toolbar() {
   const snap = useDoc((s) => s.doc.prefs.snap);
   const tool = useUi((s) => s.tool);
   const hang = useUi((s) => s.hangStep != null);
+  const rulers = useUi((s) => s.rulers);
   const [seed, setSeed] = useState(1);
 
   return (
@@ -110,6 +112,9 @@ export function Toolbar() {
         </IconButton>
         <IconButton label={snap ? 'Snapping on (hold Ctrl to bypass)' : 'Snapping off'} active={snap} onClick={() => commit((d) => void (d.prefs.snap = !d.prefs.snap))}>
           <Magnet size={16} />
+        </IconButton>
+        <IconButton label={rulers ? 'Hide rulers (Shift R)' : 'Show rulers (Shift R)'} active={rulers} onClick={() => setRulers(!rulers)}>
+          <RulerDimensionLine size={16} />
         </IconButton>
         <Divider />
         <Popover.Root>

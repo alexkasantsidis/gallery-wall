@@ -39,9 +39,20 @@ interface UiState {
   toast: { id: number; text: string } | null;
   leftPanel: 'frames' | 'furniture' | 'wall' | null;
   showInspector: boolean;
+  /** Measurement rulers along the wall (width across the top, height up from the floor). */
+  rulers: boolean;
   set: (p: Partial<UiState>) => void;
   select: (ids: string[]) => void;
   toggle: (id: string) => void;
+}
+
+function readPref(key: string, fallback: boolean): boolean {
+  try {
+    const v = localStorage.getItem(key);
+    return v == null ? fallback : v === '1';
+  } catch {
+    return fallback;
+  }
 }
 
 export const useUi = create<UiState>((set) => ({
@@ -62,12 +73,22 @@ export const useUi = create<UiState>((set) => ({
   toast: null,
   leftPanel: 'frames',
   showInspector: true,
+  rulers: readPref('gw.rulers', false),
   set: (p) => set(p),
   select: (ids) => set({ selection: ids }),
   toggle: (id) => set((s) => ({ selection: s.selection.includes(id) ? s.selection.filter((x) => x !== id) : [...s.selection, id] })),
 }));
 
 export const ui = () => useUi.getState();
+
+export function setRulers(on: boolean) {
+  useUi.getState().set({ rulers: on });
+  try {
+    localStorage.setItem('gw.rulers', on ? '1' : '0');
+  } catch {
+    /* private mode: preference just won't stick */
+  }
+}
 
 let toastId = 0;
 export function toast(text: string) {

@@ -9,6 +9,7 @@ import { presetForAspect, presetsFor } from '../model/sizePresets';
 import { styleById } from '../model/frameStyles';
 import { ingest, type AssetMeta } from '../photos/assets';
 import type { SnapTargets } from '../geometry/snapping';
+import { resizeWallDoc } from '../geometry/wallResize';
 
 export const selectedItems = (): Item[] => {
   const d = getDoc();
@@ -441,4 +442,14 @@ export function fitFrameToPhoto(itemId: string, meta: { w: number; h: number }, 
     }
     if (fr.mat.mode === 'opening') fr.mat.mode = 'uniform';
   });
+}
+
+/** Resize the wall to real dimensions, keeping every item's true size and its height off the floor. */
+export function resizeWall(width: number, height: number, opts: { key?: string; quiet?: boolean } = {}) {
+  let res: ReturnType<typeof resizeWallDoc> | null = null;
+  const d0 = getDoc();
+  if (Math.abs(d0.wall.width - width) < 1e-6 && Math.abs(d0.wall.height - height) < 1e-6) return;
+  commit((d) => void (res = resizeWallDoc(d, width, height)), { key: opts.key });
+  const r = res as ReturnType<typeof resizeWallDoc> | null;
+  if (r && r.outside.length && !opts.quiet) toast(`${r.outside.length} item${r.outside.length > 1 ? 's' : ''} now extend${r.outside.length > 1 ? '' : 's'} past the wall edge`);
 }

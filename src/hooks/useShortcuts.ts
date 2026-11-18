@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useDoc, getDoc } from '../store/docStore';
-import { ui } from '../store/uiStore';
+import { ui, setRulers } from '../store/uiStore';
 import {
   addFrame,
   copySelection,
@@ -90,6 +90,8 @@ export function useShortcuts() {
       } else if (k === 'f') {
         const d = getDoc();
         addFrame(viewCenter(), d.prefs.units === 'cm' ? { w: 20 / 2.54, h: 25 / 2.54 } : { w: 8, h: 10 });
+      } else if (k === 'r' && e.shiftKey) {
+        setRulers(!ui().rulers);
       } else if (k === 'r') {
         rotateSelection();
       } else if (k === ']') {
