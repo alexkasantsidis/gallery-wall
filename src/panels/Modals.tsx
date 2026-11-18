@@ -171,6 +171,7 @@ const SHORTCUTS: [string, string][] = [
   ['Delete', 'Delete / Backspace'],
   ['Undo / redo', 'Ctrl Z / Ctrl Shift Z'],
   ['Select / pan tool', 'V / H'],
+  ['Show / hide rulers', 'Shift R'],
 ];
 
 function Shortcuts() {

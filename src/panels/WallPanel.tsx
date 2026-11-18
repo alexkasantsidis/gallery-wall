@@ -1,7 +1,10 @@
 import clsx from 'clsx';
 import { ImageUp, Ruler, Trash2 } from 'lucide-react';
 import { useDoc, commit } from '../store/docStore';
-import { ui, toast } from '../store/uiStore';
+import { ui, toast, useUi, setRulers } from '../store/uiStore';
+import { resizeWall } from '../store/actions';
+import { fitWall } from './Navigator';
+import { wallPresetsFor, matchWallPreset, formatWallLength, formatWallSize, MIN_WALL_W, MIN_WALL_H } from '../model/wallPresets';
 import { PAINT_SWATCHES, TEXTURES, kelvinToRgb } from '../model/wallStyles';
 import { wallLayers, useTextureVersion } from '../frames/textures';
 import { Section, Row, Slider, Swatches, LengthInput, Toggle, Segmented, Button } from '../components/ui';
@@ -21,11 +24,29 @@ const setWall = (fn: (w: WallDoc['wall']) => void, key = 'wall') =>
     fn(d.wall);
   }, { key });
 
+/** Tiny proportional wall outline for the preset buttons. */
+function WallGlyph({ w, h, active }: { w: number; h: number; active: boolean }) {
+  const k = 22 / Math.max(w, h);
+  return (
+    <span className="grid h-6 w-6 shrink-0 place-items-center">
+      <span className={clsx('block rounded-[2px] border', active ? 'border-accent-soft bg-accent/25' : 'border-ink-400 bg-white/5')} style={{ width: w * k, height: h * k }} />
+    </span>
+  );
+}
+
 export function WallPanel() {
   useTextureVersion((t) => t.v);
   const wall = useDoc((s) => s.doc.wall);
   const units = useDoc((s) => s.doc.prefs.units);
+  const rulers = useUi((st) => st.rulers);
+  const preset = matchWallPreset(wall.width, wall.height, units);
   const s = wall.style;
+
+  const applySize = (w: number, h: number, refit = false) => {
+    resizeWall(w, h, { key: refit ? undefined : 'wall-size' });
+    // Let the new size render before framing it.
+    if (refit) requestAnimationFrame(fitWall);
+  };
   const [r, g, b] = kelvinToRgb(s.light.temperature);
 
   const uploadWallPhoto = () =>
@@ -47,11 +68,39 @@ export function WallPanel() {
   return (
     <div>
       <Section title="Wall size">
+        <div className="mb-2.5 grid grid-cols-2 gap-1.5">
+          {wallPresetsFor(units).map((p) => {
+            const active = preset?.id === p.id;
+            return (
+              <button
+                key={p.id}
+                onClick={() => applySize(p.w, p.h, true)}
+                aria-pressed={active}
+                className={clsx(
+                  'flex items-center gap-2 rounded-xl px-2 py-1.5 text-left transition-colors',
+                  active ? 'bg-accent/18 ring-1 ring-accent/60' : 'bg-white/4 hover:bg-white/8',
+                )}
+              >
+                <WallGlyph w={p.w} h={p.h} active={active} />
+                <span className="min-w-0">
+                  <span className={clsx('block truncate text-[11.5px] font-medium', active ? 'text-white' : 'text-ink-200')}>{p.name}</span>
+                  <span className="block truncate text-[10.5px] text-ink-400 tabular-nums">{formatWallSize(p.w, p.h, units)}</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
         <Row label="Width">
-          <LengthInput value={wall.width} units={units} min={24} onChange={(v) => setWall((w) => void (w.width = v))} className="w-24" ariaLabel="Wall width" />
+          <LengthInput value={wall.width} units={units} min={MIN_WALL_W} onChange={(v) => applySize(v, wall.height)} className="w-24" ariaLabel="Wall width" />
         </Row>
         <Row label="Height">
-          <LengthInput value={wall.height} units={units} min={48} onChange={(v) => setWall((w) => void (w.height = v))} className="w-24" ariaLabel="Wall height" />
+          <LengthInput value={wall.height} units={units} min={MIN_WALL_H} onChange={(v) => applySize(wall.width, v)} className="w-24" ariaLabel="Wall height" />
+        </Row>
+        <p className="mt-1 mb-2 text-[11px] leading-snug text-ink-400">
+          {formatWallLength(wall.width, units)} wide × {formatWallLength(wall.height, units)} high{preset ? ` · ${preset.name}` : ''}. Frames keep their real size and their height off the floor.
+        </p>
+        <Row label="Rulers">
+          <Toggle checked={rulers} onChange={setRulers} />
         </Row>
         <Row label="Eye level line">
           <Toggle checked={wall.showEyeLine} onChange={(v) => setWall((w) => void (w.showEyeLine = v))} />

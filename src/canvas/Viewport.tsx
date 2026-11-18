@@ -25,6 +25,7 @@ import type { FrameItem, Rect, Size } from '../model/types';
 import { ItemNode, type HandleDir } from './ItemNode';
 import { WallSurface } from './WallSurface';
 import { GuidesLayer } from './GuidesLayer';
+import { Rulers } from './Rulers';
 import { openFilePicker } from '../photos/filePicker';
 import { styleById } from '../model/frameStyles';
 
@@ -639,6 +640,7 @@ export function Viewport() {
         </div>
         <GuidesLayer />
       </motion.div>
+      <Rulers />
     </div>
   );
 }
